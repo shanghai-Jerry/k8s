@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    type: canary
+  name: green-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      type: canary
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: green-app
+        type: canary
+    spec:
+    
+      volumes: 
+      - name: web-config
+        configMap:
+          name: green-web-cm  # 该configmap的key为： index.html, value为：需要展示页面的内容
+      containers:
+      - image: nginx
+        name: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: web-config
+          mountPath: /usr/share/nginx/html  # 这个目录里面的index.html文件内容由web-config定义的volume中的configMap决定，具体内容为和该文件名一致的key对应的value
+          
+    
+status: {}

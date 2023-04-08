@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+
+  name: nginx-deployment
+  annotations:
+    description: this a demo web server using nginx
+
+spec:
+
+  selector:
+
+    matchLabels:
+
+      app: nginx
+  # 告知 Deployment 运行 2 个与该模板匹配的 Pod
+  replicas: 4 
+
+  template:
+
+    metadata:
+
+      labels:
+
+        app: nginx
+        business: order
+
+    spec:
+
+      volumes:
+     
+      - name: web-config
+        configMap:
+          name: green-web-cm  # 该configmap的key为： index.html, value为：需要展示页面的内容
+      
+      - name: secret-volume
+        secret:
+          secretName: my-password-data
+
+      containers:
+
+      - name: nginx
+
+        image: nginx:1.14.2
+
+        ports:
+
+        - containerPort: 80
+
+        volumeMounts:
+        # 实现外部可配置化操作
+        # 通过volumeMount将configmap引入到指定路径，configmap中每个key生成有个文件，文件内容为value
+        # 只通过修改configmap中的value就能实现功能上的依赖变更
+        - name: web-config
+          mountPath: /usr/share/nginx/html
+          
+        
+        - name: secret-volume
+          mountPath: "/etc/secret-data"
+          readOnly: true
+        
+        # 环境变量依赖configmap/secret的配置
+        env:
+        - name: SPECIFIC_ENV_VAR1
+          valueFrom:
+            configMapKeyRef:
+              name: config-map-1
+              key: SPECIFIC_DATA
+        - name: SPECIFIC_ENV_VAR2
+          valueFrom:
+            configMapKeyRef:
+              name: config-map-1
+              key: SPECIFIC_INFO
+
+        - name: DB_PASSWARD
+          valueFrom:
+            secretKeyRef:
+              name: my-password-data
+              key: password
+
