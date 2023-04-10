@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+
+  name: nginx
+  annotations:
+    description: this a demo web server using nginx
+
+spec:
+
+  selector:
+
+    matchLabels:
+
+      app: nginx
+  # 告知 Deployment 运行 2 个与该模板匹配的 Pod
+  replicas: 4 
+
+  template:
+
+    metadata:
+
+      labels:
+
+        app: nginx
+        business: order
+
+    spec:
+
+      containers:
+
+      - name: nginx
+
+        image: nginx:1.14.2
+
+        ports:
+
+        - containerPort: 80
+
