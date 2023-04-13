@@ -1,0 +1,16 @@
+piVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: hello-world
+  namespace: default-injection
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - gateway
+  http:
+    - route:
+        - destination:  # matched svc
+            host: hello-world.default-injection.svc.cluster.local
+            port:
+              number: 80

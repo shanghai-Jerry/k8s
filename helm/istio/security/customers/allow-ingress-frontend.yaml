@@ -1,0 +1,21 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-ingress-frontend
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: web-frontend
+  action: ALLOW
+  rules:
+    - from: # allow from ingressgateway
+        - source:
+            namespaces: ["istio-system"]
+        - source:
+            principals: ["cluster.local/ns/istio-system/sa/istio-ingressgateway"]
+    - from: # default SA
+        - source:
+            namespaces: ["default"]
+        - source:
+            principals: ["cluster.local/ns/default/sa/default"]
