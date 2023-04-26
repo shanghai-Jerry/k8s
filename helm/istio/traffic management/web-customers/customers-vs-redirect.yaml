@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: customers-route
+spec:
+  hosts:
+  - customers.default.svc.cluster.local
+  gateways:
+    - gateway
+  http:
+  - match:
+    - uri:
+        exact: /api/v1/helloWorld
+    redirect:
+      uri: /v1/hello
+      authority: hello-world.default.svc.cluster.local
