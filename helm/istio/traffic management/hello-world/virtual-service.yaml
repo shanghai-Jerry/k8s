@@ -5,7 +5,7 @@ metadata:
   namespace: default-injection
 spec:
   hosts:
-    - "*"
+    - "*"  # 外部host的域名访问控制， 允许任何域名
   gateways:
     - gateway
   http:
