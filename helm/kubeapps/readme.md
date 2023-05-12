@@ -8,3 +8,18 @@
 
 关于kubeapps的安装，参考 👉🏻 [kubeapps install](https://kubeapps.dev/)
 
+###  生产访问token
+
+```bash
+k8s apply -f [<secret.token.yaml>](/helm/kubeapps/secret.token.yaml)
+```
+
+获取token
+
+```bash
+kubectl get --namespace default secret kubeapps-operator-token -o go-template='{{.data.token | base64decode}}'
+```
+
+
+
+
