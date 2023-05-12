@@ -1,0 +1,215 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    checksum/token-secret: 4db08f4c120e70ca152b97bf3e03d2313b2a8ba36aec7642e65ab6bd30e31ddf
+  creationTimestamp: "2023-04-26T08:49:59Z"
+  generateName: my-etcd-
+  labels:
+    app.kubernetes.io/instance: my-etcd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: etcd
+    controller-revision-hash: my-etcd-557d7f57c6
+    helm.sh/chart: etcd-8.10.1
+    statefulset.kubernetes.io/pod-name: my-etcd-0
+  name: my-etcd-0
+  namespace: default
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: StatefulSet
+    name: my-etcd
+    uid: b1e32e84-ec5c-445f-a21b-9a566c649e07
+  resourceVersion: "378467"
+  uid: 9ca66bad-0d77-4008-a44c-bb33c98cd2e3
+spec:
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/instance: my-etcd
+              app.kubernetes.io/name: etcd
+          topologyKey: kubernetes.io/hostname
+        weight: 1
+  containers:
+  - env:
+    - name: BITNAMI_DEBUG
+      value: "false"
+    - name: MY_POD_IP
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: status.podIP
+    - name: MY_POD_NAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.name
+    - name: MY_STS_NAME
+      value: my-etcd
+    - name: ETCDCTL_API
+      value: "3"
+    - name: ETCD_ON_K8S
+      value: "yes"
+    - name: ETCD_START_FROM_SNAPSHOT
+      value: "no"
+    - name: ETCD_DISASTER_RECOVERY
+      value: "no"
+    - name: ETCD_NAME
+      value: $(MY_POD_NAME)
+    - name: ETCD_DATA_DIR
+      value: /bitnami/etcd/data
+    - name: ETCD_LOG_LEVEL
+      value: info
+    - name: ALLOW_NONE_AUTHENTICATION
+      value: "no"
+    - name: ETCD_ROOT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          key: etcd-root-password
+          name: my-etcd
+    - name: ETCD_AUTH_TOKEN
+      value: jwt,priv-key=/opt/bitnami/etcd/certs/token/jwt-token.pem,sign-method=RS256,ttl=10m
+    - name: ETCD_ADVERTISE_CLIENT_URLS
+      value: http://$(MY_POD_NAME).my-etcd-headless.default.svc.cluster.local:2379,http://my-etcd.default.svc.cluster.local:2379
+    - name: ETCD_LISTEN_CLIENT_URLS
+      value: http://0.0.0.0:2379
+    - name: ETCD_INITIAL_ADVERTISE_PEER_URLS
+      value: http://$(MY_POD_NAME).my-etcd-headless.default.svc.cluster.local:2380
+    - name: ETCD_LISTEN_PEER_URLS
+      value: http://0.0.0.0:2380
+    - name: ETCD_CLUSTER_DOMAIN
+      value: my-etcd-headless.default.svc.cluster.local
+    image: docker.io/bitnami/etcd:3.5.8-debian-11-r4
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      exec:
+        command:
+        - /opt/bitnami/scripts/etcd/healthcheck.sh
+      failureThreshold: 5
+      initialDelaySeconds: 60
+      periodSeconds: 30
+      successThreshold: 1
+      timeoutSeconds: 5
+    name: etcd
+    ports:
+    - containerPort: 2379
+      name: client
+      protocol: TCP
+    - containerPort: 2380
+      name: peer
+      protocol: TCP
+    readinessProbe:
+      exec:
+        command:
+        - /opt/bitnami/scripts/etcd/healthcheck.sh
+      failureThreshold: 5
+      initialDelaySeconds: 60
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 5
+    resources: {}
+    securityContext:
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true
+      runAsUser: 1001
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /bitnami/etcd
+      name: data
+    - mountPath: /opt/bitnami/etcd/certs/token/
+      name: etcd-jwt-token
+      readOnly: true
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-9cgph
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  hostname: my-etcd-0
+  nodeName: minikube
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext:
+    fsGroup: 1001
+  serviceAccount: default
+  serviceAccountName: default
+  subdomain: my-etcd-headless
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: data
+    persistentVolumeClaim:
+      claimName: data-my-etcd-0
+  - name: etcd-jwt-token
+    secret:
+      defaultMode: 256
+      secretName: my-etcd-jwt-token
+  - name: kube-api-access-9cgph
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2023-04-26T08:50:01Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2023-04-26T08:51:12Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2023-04-26T08:51:12Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2023-04-26T08:50:01Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: docker://6d425265a270660cf1dd7b0c057c559a707de0b85f66a6b2ea2a53f958cc7551
+    image: bitnami/etcd:3.5.8-debian-11-r4
+    imageID: docker-pullable://bitnami/etcd@sha256:fb936ab13f243521294d42788678a1d35628fed5417d13b2f1179714520eb1f8
+    lastState: {}
+    name: etcd
+    ready: true
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2023-04-26T08:50:03Z"
+  hostIP: 192.168.49.2
+  phase: Running
+  podIP: 10.244.0.254
+  podIPs:
+  - ip: 10.244.0.254
+  qosClass: BestEffort
+  startTime: "2023-04-26T08:50:01Z"
