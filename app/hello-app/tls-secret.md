@@ -25,7 +25,7 @@ kubectl create secret tls hello-app-tls \
 ```yaml
 tls:
   - hosts:
-    - demo.mlopshub.com
+    - bigchange.com
     secretName: hello-app-tls
 ```
 
