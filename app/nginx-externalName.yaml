@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx-externalname
+  name: nginx-externalname
+spec:
+  type: ExternalName
+  externalName: www.baidu.com
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-example-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  ##
+  - host: "nginx-external.example.com"
+    http:
+      paths:
+        - pathType: Prefix
+          path: "/"
+          backend:
+            service:
+              name: nginx-svc-external
+              port:
+                number: 80
+  - host: "hello-app.example.com"
+    http:
+      paths:
+        - pathType: Prefix
+          path: "/"
+          backend:
+            service:
+              name: hello-service
+              port:
+                number: 80
