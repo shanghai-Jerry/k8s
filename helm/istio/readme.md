@@ -13,8 +13,14 @@ helm repo update
 
 ```bash
 kubectl label namespace default istio-injection=enabled --overwrite
-
 ```
+
+通过上面的操作，istio预先在k8s中注册了一个资源[MutatingWebhookConfiguration](/helm/istio/mutatingWebhookConfiguration.yaml)
+
+以上配置告诉 Kubernetes，对于符合标签istio-injection: enabled的名称空间，
+在 Pod 资源进行 CREATE 操作时，应该先自动触发一次 Webhook 调用，调用的位置是istio-system名称空间中的服务istio-sidecar-injector，
+调用具体的 URL 路径是/inject。在这次调用中，Kubernetes 会把拟新建 Pod 的元数据定义作为参数发送给此 HTTP Endpoint，
+然后从服务返回结果中得到注入了边车代理的新 Pod 定义，以此自动完成注入。
 
 ## installing the Charts
 新建一个namespace,istio-system并设置依赖注入
@@ -36,6 +42,7 @@ helm install istiod istio/istiod -n istio-system -f my-config-values.yaml
 
 ```
 ### Gateway chart
+```bash
 kubectl create namespace istio-gateway
 helm install istio-ingressgateway istio/gateway -n istio-gateway
 
