@@ -45,7 +45,31 @@ helm install istiod istio/istiod -n istio-system -f my-config-values.yaml
 ```bash
 kubectl create namespace istio-gateway
 helm install istio-ingressgateway istio/gateway -n istio-gateway
-```
+
+
+## 可视化监控插件
+
+这其中就包括监控指标，网格可视化，调用链路跟踪
+
+安装配置👉🏻 参考： [addons](https://github.com/shanghai-Jerry/istio/tree/master/samples/addons)
+
+* 监控指标+展示： Prometheus + Grafana
+* 网格可视化： Kiali
+* 调用链路跟踪：调用链路数据采集方式有很多种方案，可以使用jaeger，ZipKin，SkyWalking等组件
+
+
+## 案例演示
+
+参考官网案例：  [bookinfo](https://github.com/shanghai-Jerry/istio/tree/master/samples/bookinfo)
+
+其中 [networking](https://github.com/shanghai-Jerry/istio/tree/master/samples/bookinfo/networking) 目录配置一些流量管控策略
+
+1. 流量按权重分配等控制策略
+2. 目标路由规则配置
+3. 异常转发，故障注入
+4. egress和ingress网关的配置
+
+
 
 
 

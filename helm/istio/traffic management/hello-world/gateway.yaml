@@ -5,11 +5,13 @@ metadata:
   namespace: default-injection
 spec:
   selector:
-    istio: ingressgateway
+    istio: ingressgateway  # 使用通过istio/gateway安装好的ingress default controller
   servers:
     - port:
         number: 80
         name: http
-        protocol: HTTP
+        protocol: HTTP  #  协议为HTTP方式
       hosts:
-        - '*'
+        - '*'  # 外部访问的host
+        - 'baidu.com'
+        - 'qq.com'

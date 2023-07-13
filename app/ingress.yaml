@@ -21,7 +21,6 @@ spec:
               number: 80
         path: /  # path
         pathType: ImplementationSpecific
-  
   - host: green.example.com
     http:
       paths:
@@ -32,8 +31,23 @@ spec:
               number: 80
         path: /
         pathType: ImplementationSpecific
-
-
+  # This section is only required if TLS is to be enabled for the Ingress
+  # If TLS is enabled for the Ingress, a Secret containing the certificate and key must also be provided:
+  tls:
+  - hosts:
+    - blue.example.com
+  secretName: example-tls  
+---
+# If TLS is enabled for the Ingress, a Secret containing the certificate and key must also be provided:
+apiVersion: v1
+kind: Secret
+metadata:
+    name: example-tls
+namespace: ingress-controller
+data:
+  tls.crt: 
+  tls.key:
+type: kubernetes.io/tls
 ---
 # Fanout routing
 apiVersion: networking.k8s.io/v1
