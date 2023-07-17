@@ -1,6 +1,16 @@
 # airflow
 
-## installation
+## [installation by docker-compose](https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html#fetching-docker-compose-yaml)
+
+1. download [docker-compose.yaml](curl -LfO 'https://airflow.apache.org/docs/apache-airflow/2.6.3/docker-compose.yaml')
+
+2. start airflow
+
+```bash
+ docker-compose up
+```
+
+## installation by helme
 
 ```bash
 helm repo add apache-airflow https://airflow.apache.org
