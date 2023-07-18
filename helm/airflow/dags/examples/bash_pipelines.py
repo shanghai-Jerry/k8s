@@ -8,7 +8,7 @@ from airflow import DAG
 # Operators; we need this to operate!
 from airflow.operators.bash import BashOperator
 with DAG(
-    "tutorial",
+    dag_id="tutorial",
     # These args will get passed on to each operator
     # You can override them on a per-task basis during operator initialization
     default_args={
@@ -32,7 +32,7 @@ with DAG(
         # 'trigger_rule': 'all_success'
     },
     description="A simple tutorial DAG",
-    schedule=timedelta(days=1),
+    schedule=timedelta(minutes=10),
     start_date=datetime(2021, 1, 1),
     catchup=False,
     tags=["example"],
@@ -79,34 +79,31 @@ with DAG(
         depends_on_past=False,
         bash_command=templated_command,
     )
-
+    # build DAG
     t1 >> [t2, t3]
 
-    """
-    t1.set_downstream(t2)
+    # t1.set_downstream(t2)
 
     # This means that t2 will depend on t1
     # running successfully to run.
     # It is equivalent to:
-    t2.set_upstream(t1)
+    # t2.set_upstream(t1)
 
     # The bit shift operator can also be
     # used to chain operations:
-    t1 >> t2
+    # t1 >> t2
 
     # And the upstream dependency with the
     # bit shift operator:
-    t2 << t1
+    # t2 << t1
 
     # Chaining multiple dependencies becomes
     # concise with the bit shift operator:
-    t1 >> t2 >> t3
+    # t1 >> t2 >> t3
 
     # A list of tasks can also be set as
     # dependencies. These operations
     # all have the same effect:
-    t1.set_downstream([t2, t3])
-    t1 >> [t2, t3]
-    [t2, t3] << t1
-    
-    """
+    # t1.set_downstream([t2, t3])
+    # t1 >> [t2, t3]
+    # [t2, t3] << t1
