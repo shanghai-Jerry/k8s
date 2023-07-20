@@ -2,44 +2,12 @@ from datetime import timedelta, datetime
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-
-
-def greet(age, ti, **kwargs):
-    """
-    Function to greet based on age and task interference (ti)
-
-    Args:
-        age (int): Age of the person
-        ti (object): Task interference object
-
-    Returns:
-        None
-    """
-    conf = kwargs.get('dag_run').conf
-    my_para = conf.get('myPara')
-
-    first_name = ti.xcom_pull(task_ids='task2', key='first_name')
-    last_name = ti.xcom_pull(task_ids='task2', key="last_name")
-    print(f"Hello, {first_name} {last_name}, i am {age} years old now")
-    print(f"Hello dag_run paramters in task1, myPara: {my_para}")
-
-
-def get_name(ti, **kwargs):
-    """
-    Push first_name and last_name to XCom.
-
-    Args:
-        ti (obj): Airflow Task Instance object.
-
-    Returns:
-        None
-    """
-    conf = kwargs.get('dag_run').conf
-    my_para = conf.get('myPara')
-    ti.xcom_push(key='first_name', value='Anthony')
-    ti.xcom_push(key="last_name", value="Jones")
-    print(f"Hello dag_run paramters in task2, myPara: {my_para}")
-
+from airflow.operators.python import BranchPythonOperator
+from operators.greet import greet
+from operators.greet import greet_from_age_over_5
+from operators.greet import greet_from_age_not_over_5
+from operators.greet import get_name
+from operators.greet import _choose_by_age
 
 # """ define a DAG """
 dag = DAG(
@@ -59,18 +27,40 @@ dag = DAG(
     catchup=False,)
 
 # """ task definition """
+
+# """ PythonOperator """
 task1 = PythonOperator(
     task_id="task1",
-    python_callable=greet,
+    python_callable=get_name,
     op_kwargs={"age": 100},
     dag=dag
 )
 
 task2 = PythonOperator(
     task_id="task2",
-    python_callable=get_name,
+    python_callable=greet,
+    dag=dag
+)
+# """ BranchPythonOperator """
+age_over_5 = PythonOperator(
+    task_id="age_over_5",
+    python_callable=greet_from_age_over_5,
     dag=dag
 )
 
+age_not_over_5 = PythonOperator(
+    dag=dag,
+    task_id="age_not_over_5",
+    python_callable=greet_from_age_not_over_5
+)
+
+choose_by_age = BranchPythonOperator(
+    task_id="choose_by_age",
+    python_callable=_choose_by_age,
+    op_kwargs={"age": 5},
+    dag=dag,
+)
+
+
 # """ build DAG """
-task2 >> task1
+task1 >> task2 >> choose_by_age >> [age_over_5, age_not_over_5]

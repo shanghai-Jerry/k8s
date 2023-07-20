@@ -1,7 +1,0 @@
-# Operators
-
-## BashOperator
-
-## PythonOperator
-
-## BranchOperator

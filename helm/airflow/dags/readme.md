@@ -7,7 +7,7 @@
 
 ### [Trigger a new DAG run](https://airflow.apache.org/docs/apache-airflow/2.3.3/stable-rest-api-ref.html#operation/post_dag_run)
 
-通过上面接口调用，来触发DAG运行，可以在conf字段中传递自定义的参数， 这个参数在整个DAG内部都是可读取到的。
+通过上面接口调用，来触发DAG运行，可以在conf字段中传递自定义的参数， 这个参数在整个DAG内部不同的task中都是可读取到的。
 
 读取方式, 通过定义的python_callable中的**kwargs来获取
 
