@@ -12,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
@@ -129,6 +130,22 @@ func main() {
 	podListWatcher := cache.NewListWatchFromClient(clientset.CoreV1().RESTClient(), "pods", v1.NamespaceDefault, fields.Everything())
 
 	queue := workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter())
+
+	factory := informers.NewSharedInformerFactory(clientset, time.Minute*10)
+	podInformer := factory.Core().V1().Pods().Informer()
+	podInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			// key, err := cache.MetaNamespaceKeyFunc(obj)
+			// 添加事件
+		},
+		UpdateFunc: func(old interface{}, new interface{}) {
+			// 更新事件
+		},
+		DeleteFunc: func(obj interface{}) {
+			// key, err := cache.DeletionHandlingMetaNamespaceKeyFunc(obj)
+			// 删除事件
+		},
+	})
 
 	indexer, informer := cache.NewIndexerInformer(podListWatcher, &v1.Pod{}, 0, cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
