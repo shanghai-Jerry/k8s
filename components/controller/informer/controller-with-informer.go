@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 	"time"
 
 	"k8s.io/klog/v2"
@@ -12,6 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/workqueue"
@@ -85,7 +87,7 @@ func (c *Controller) Run(workers int, stopCh chan struct{}) {
 	go c.informer.Run(stopCh)
 
 	if !cache.WaitForCacheSync(stopCh, c.informer.HasSynced) {
-		runtime.HandleError(fmt.Errorf("Timed out waiting for caches to sync"))
+		runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
 		return
 	}
 
@@ -98,8 +100,7 @@ func (c *Controller) Run(workers int, stopCh chan struct{}) {
 }
 
 func (c *Controller) runWorker() {
-	for c.processNextItem() {
-	}
+	c.processNextItem()
 }
 
 func main() {
@@ -109,15 +110,19 @@ func main() {
 	flag.StringVar(&kubeconfig, "kubeconfig", "", "absolute path to the kubeconfig file")
 	flag.StringVar(&master, "master", "", "master url")
 	flag.Parse()
-
-	config, err := clientcmd.BuildConfigFromFlags(master, kubeconfig)
+	// 创建 Kubernetes 客户端
+	config, err := rest.InClusterConfig()
 	if err != nil {
-		klog.Fatal(err)
+		kubeconfig := os.Getenv("KUBECONFIG")
+		fmt.Println("Using kubeconfig file:" + kubeconfig)
+		config, err = clientcmd.BuildConfigFromFlags(master, kubeconfig)
+		if err != nil {
+			panic(err.Error())
+		}
 	}
-
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		klog.Fatal(err)
+		panic(err.Error())
 	}
 
 	// 普通informer
