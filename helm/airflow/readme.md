@@ -9,6 +9,8 @@
 ```bash
  docker-compose up
 ```
+3. webserver UI
+   username/password:   airflow/airflow
 
 ## installation by helme
 

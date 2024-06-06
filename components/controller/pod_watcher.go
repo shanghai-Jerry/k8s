@@ -11,6 +11,7 @@ import (
 	"k8s.io/client-go/rest"
 )
 
+// main 简单的pod watcher
 func main() {
 	// create a Kubernetes API client
 	config, err := rest.InClusterConfig()
